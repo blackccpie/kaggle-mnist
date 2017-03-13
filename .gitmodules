@@ -1,0 +1,3 @@
+[submodule "hualos"]
+	path = hualos
+	url = https://github.com/blackccpie/hualos

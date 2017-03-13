@@ -6,8 +6,10 @@ from keras import backend as K
 from keras.models import Sequential
 from keras.layers.core import Dense, Dropout, Activation, Flatten
 from keras.layers.convolutional import Convolution2D, MaxPooling2D
-from keras.callbacks import Callback
+from keras.callbacks import Callback, RemoteMonitor
 from keras.utils import np_utils
+
+monitor = RemoteMonitor(root='http://localhost:9000')
 
 # input image dimensions
 img_rows, img_cols = 28, 28
@@ -84,7 +86,7 @@ model.compile(loss='categorical_crossentropy', optimizer='adamax', metrics=["acc
 model.summary()
 
 # Make the model learn
-model.fit(X_train, Y_train, batch_size=batch_size, nb_epoch=nb_epoch, callbacks=[TestCallback((X_test, Y_test))], verbose=1)
+model.fit(X_train, Y_train, batch_size=batch_size, nb_epoch=nb_epoch, callbacks=[monitor,TestCallback((X_test, Y_test))], verbose=1)
 
 # Predict the label for X_test
 yPred = model.predict_classes(X_test)
