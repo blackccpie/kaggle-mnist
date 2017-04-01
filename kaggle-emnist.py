@@ -10,8 +10,8 @@ from keras.callbacks import Callback, RemoteMonitor
 from keras.utils import np_utils
 
 # enable multi-CPU
-import theano
-theano.config.openmp = True
+#import theano
+#theano.config.openmp = True
 
 monitor = RemoteMonitor(root='http://localhost:9000')
 
@@ -19,12 +19,12 @@ monitor = RemoteMonitor(root='http://localhost:9000')
 img_rows, img_cols = 28, 28
 
 batch_size = 128 # Number of images used in each optimization step
-nb_classes = 10 # One class per digit
+nb_classes = 62 # One class per digit/lowercase letter/uppercase letter
 nb_epoch = 70 # Number of times the whole data is used to learn
 
 # Read the train and test datasets
-train = pd.read_csv("mnist/train.csv").values
-test  = pd.read_csv("mnist/test.csv").values
+train = pd.read_csv("emnist/train.csv").values
+test  = pd.read_csv("emnist/test.csv").values
 
 print('train shape:', train.shape)
 print('test shape:', test.shape)
@@ -66,20 +66,20 @@ model = Sequential()
 # For an explanation on conv layers see http://cs231n.github.io/convolutional-networks/#conv
 # By default the stride/subsample is 1 and there is no zero-padding.
 # If you want zero-padding add a ZeroPadding layer or, if stride is 1 use border_mode="same"
-model.add(Convolution2D(12, 5, 5, activation = 'relu', input_shape=in_shape, init='he_normal'))
+model.add(Convolution2D(15, 5, 5, activation = 'relu', input_shape=in_shape, init='he_normal'))
 
 # For an explanation on pooling layers see http://cs231n.github.io/convolutional-networks/#pool
 model.add(MaxPooling2D(pool_size=(2, 2)))
 
-model.add(Convolution2D(25, 5, 5, activation = 'relu', init='he_normal'))
+model.add(Convolution2D(30, 5, 5, activation = 'relu', init='he_normal'))
 
 model.add(MaxPooling2D(pool_size=(2, 2)))
 
 # Flatten the 3D output to 1D tensor for a fully connected layer to accept the input
 model.add(Flatten())
-model.add(Dense(180, activation = 'relu', init='he_normal'))
+model.add(Dense(250, activation = 'relu', init='he_normal'))
 model.add(Dropout(0.5))
-model.add(Dense(100, activation = 'relu', init='he_normal'))
+model.add(Dense(125, activation = 'relu', init='he_normal'))
 model.add(Dropout(0.5))
 model.add(Dense(nb_classes, activation = 'softmax', init='he_normal')) #Last layer with one output per class
 
@@ -96,4 +96,4 @@ model.fit(X_train, Y_train, batch_size=batch_size, nb_epoch=nb_epoch, callbacks=
 yPred = model.predict_classes(X_test)
 
 # Save prediction in file for Kaggle submission
-np.savetxt('mnist-pred.csv', np.c_[range(1,len(yPred)+1),yPred], delimiter=',', header = 'ImageId,Label', comments = '', fmt='%d')
+np.savetxt('emnist-pred.csv', np.c_[range(1,len(yPred)+1),yPred], delimiter=',', header = 'ImageId,Label', comments = '', fmt='%d')
