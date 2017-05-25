@@ -1,3 +1,8 @@
+'''
+Denoising Autoencoder on MNIST using Keras
+keras 1.2.2
+'''
+
 import pandas as pd
 import numpy as np
 np.random.seed(1337) # for reproducibility
