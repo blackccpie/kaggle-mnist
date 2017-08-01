@@ -25,7 +25,7 @@ img_rows, img_cols = 28, 28
 
 batch_size = 128 # Number of images used in each optimization step
 nb_classes = 10 # One class per digit
-nb_epoch = 70 # Number of times the whole data is used to learn
+epochs = 70 # Number of times the whole data is used to learn
 
 # Read the train and test datasets
 train = pd.read_csv("mnist/train.csv").values
@@ -73,7 +73,7 @@ model = Sequential()
 # For an explanation on conv layers see http://cs231n.github.io/convolutional-networks/#conv
 # By default the stride/subsample is 1 and there is no zero-padding.
 # If you want zero-padding add a ZeroPadding layer or, if stride is 1 use border_mode="same"
-model.add(Conv2D(12, kernel_size=(5,5), activation = 'relu', input_shape=in_shape, kernel_initializer='he_normal', data_format='channels_first'))
+model.add(Conv2D(12, kernel_size=(5,5), activation = 'relu', input_shape=in_shape, kernel_initializer='he_normal'))
 
 # For an explanation on pooling layers see http://cs231n.github.io/convolutional-networks/#pool
 model.add(MaxPooling2D(pool_size=(2, 2)))
