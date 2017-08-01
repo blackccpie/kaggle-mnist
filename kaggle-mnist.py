@@ -1,3 +1,8 @@
+'''
+MNIST Digit recognizer using Keras
+keras 2.0.6
+'''
+
 import pandas as pd
 import numpy as np
 np.random.seed(1337) # for reproducibility
@@ -5,7 +10,7 @@ np.random.seed(1337) # for reproducibility
 from keras import backend as K
 from keras.models import Sequential
 from keras.layers.core import Dense, Dropout, Activation, Flatten
-from keras.layers.convolutional import Convolution2D, MaxPooling2D
+from keras.layers.convolutional import Conv2D, MaxPooling2D
 from keras.callbacks import Callback, RemoteMonitor
 from keras.utils import np_utils
 
@@ -29,13 +34,15 @@ test  = pd.read_csv("mnist/test.csv").values
 print('train shape:', train.shape)
 print('test shape:', test.shape)
 
-# Reshape the data to be used by a Theano CNN. Shape is
+# Reshape the data to be used by a Theano CNN. Shape is:
 # (nb_of_samples, nb_of_color_channels, img_width, img_heigh)
 X_train = train[:, 1:].reshape(train.shape[0], 1, img_rows, img_cols)
 X_test = test[:, 1:].reshape(test.shape[0], 1, img_rows, img_cols)
 in_shape = (1, img_rows, img_cols)
 y_train = train[:, 0] # First data is label (already removed from X_train)
 y_test = test[:, 0] # First data is label (already removed from Y_train)
+
+print('in shape:', in_shape)
 
 # Make the value floats in [0;1] instead of int in [0;255]
 X_train = X_train.astype('float32')
@@ -66,22 +73,22 @@ model = Sequential()
 # For an explanation on conv layers see http://cs231n.github.io/convolutional-networks/#conv
 # By default the stride/subsample is 1 and there is no zero-padding.
 # If you want zero-padding add a ZeroPadding layer or, if stride is 1 use border_mode="same"
-model.add(Convolution2D(12, 5, 5, activation = 'relu', input_shape=in_shape, init='he_normal'))
+model.add(Conv2D(12, kernel_size=(5,5), activation = 'relu', input_shape=in_shape, kernel_initializer='he_normal', data_format='channels_first'))
 
 # For an explanation on pooling layers see http://cs231n.github.io/convolutional-networks/#pool
 model.add(MaxPooling2D(pool_size=(2, 2)))
 
-model.add(Convolution2D(25, 5, 5, activation = 'relu', init='he_normal'))
+model.add(Conv2D(25, kernel_size=(5,5), activation = 'relu', kernel_initializer='he_normal'))
 
 model.add(MaxPooling2D(pool_size=(2, 2)))
 
 # Flatten the 3D output to 1D tensor for a fully connected layer to accept the input
 model.add(Flatten())
-model.add(Dense(180, activation = 'relu', init='he_normal'))
+model.add(Dense(180, activation = 'relu', kernel_initializer='he_normal'))
 model.add(Dropout(0.5))
-model.add(Dense(100, activation = 'relu', init='he_normal'))
+model.add(Dense(100, activation = 'relu', kernel_initializer='he_normal'))
 model.add(Dropout(0.5))
-model.add(Dense(nb_classes, activation = 'softmax', init='he_normal')) #Last layer with one output per class
+model.add(Dense(nb_classes, activation = 'softmax', kernel_initializer='he_normal')) #Last layer with one output per class
 
 # The function to optimize is the cross entropy between the true label and the output (softmax) of the model
 # We will use adadelta to do the gradient descent see http://cs231n.github.io/neural-networks-3/#ada
@@ -90,7 +97,9 @@ model.compile(loss='categorical_crossentropy', optimizer='adamax', metrics=["acc
 model.summary()
 
 # Make the model learn
-model.fit(X_train, Y_train, batch_size=batch_size, nb_epoch=nb_epoch, callbacks=[monitor,TestCallback((X_test, Y_test))], verbose=1)
+model.fit(X_train, Y_train, batch_size=batch_size, epochs=epochs, callbacks=[monitor,TestCallback((X_test, Y_test))], verbose=1)
+
+model.save('kaggle_mnist_model.h5')
 
 # Predict the label for X_test
 yPred = model.predict_classes(X_test)
